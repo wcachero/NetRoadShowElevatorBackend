@@ -34,13 +34,11 @@ public class ElevatorSystemService
             return;
         }
 
-        // Add the current floor to the elevator's destinations if it's not already there
         if (!bestElevator.Destinations.Contains(request.CurrentFloor))
         {
             bestElevator.Destinations.Enqueue(request.CurrentFloor);
         }
 
-        // Add the destination floor to the elevator's destinations
         if (!bestElevator.Destinations.Contains(request.Floor))
         {
             bestElevator.Destinations.Enqueue(request.Floor);
@@ -62,18 +60,34 @@ public class ElevatorSystemService
     #region FindBest Elevator using dispatch logic
     private Elevator FindBestElevator(ElevatorRequest request)
     {
+        // Filter eligible elevators based on direction and current state
         var eligibleElevators = _elevators
             .Where(e =>
-                (e.Direction == Direction.Idle) ||
-                (e.Direction == Direction.Up && e.CurrentFloor <= request.CurrentFloor && request.CurrentFloor <= e.Destinations.Max()) ||
-                (e.Direction == Direction.Down && e.CurrentFloor >= request.CurrentFloor && request.CurrentFloor >= e.Destinations.Min()))
+                (e.Direction == Direction.Idle) || // Idle elevators can handle any request
+                (e.Direction == request.Direction && // Elevators moving in the same direction
+                 ((e.Direction == Direction.Up && e.CurrentFloor <= request.CurrentFloor) || // Moving up and can stop at the requested floor
+                  (e.Direction == Direction.Down && e.CurrentFloor >= request.CurrentFloor)))) // Moving down and can stop at the requested floor
+            .OrderBy(e => Math.Abs(e.CurrentFloor - request.CurrentFloor)) // Closest elevator first
             .ToList();
 
         if (!eligibleElevators.Any())
         {
+            // No eligible elevators, return null or handle as needed
             return null!;
         }
 
+        // Prioritize elevators already moving in the same direction
+        var sameDirectionElevators = eligibleElevators
+            .Where(e => e.Direction == request.Direction)
+            .OrderBy(e => Math.Abs(e.CurrentFloor - request.CurrentFloor))
+            .ToList();
+
+        if (sameDirectionElevators.Any())
+        {
+            return sameDirectionElevators.First();
+        }
+
+        // If no elevators are moving in the same direction, prioritize idle elevators
         var idleElevators = eligibleElevators
             .Where(e => e.Direction == Direction.Idle)
             .OrderBy(e => Math.Abs(e.CurrentFloor - request.CurrentFloor))
@@ -84,8 +98,10 @@ public class ElevatorSystemService
             return idleElevators.First();
         }
 
+        // If no idle elevators, find the closest busy elevator that can handle the request
         return eligibleElevators
-            .OrderBy(e => Math.Abs(e.CurrentFloor - request.CurrentFloor))
+            .OrderBy(e => e.Destinations.Count) // Prioritize elevators with fewer destinations
+            .ThenBy(e => Math.Abs(e.CurrentFloor - request.CurrentFloor)) // Then by proximity
             .FirstOrDefault()!;
     }
     #endregion
