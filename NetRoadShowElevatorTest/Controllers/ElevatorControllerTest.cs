@@ -42,7 +42,6 @@ namespace NetRoadShowElevatorTest.Controllers
         }
 
 
-
         [Fact]
         public async Task RequestElevator_ShouldReturnBadRequestForInvalidRequest()
         {

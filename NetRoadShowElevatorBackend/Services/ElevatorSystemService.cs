@@ -107,7 +107,7 @@ public class ElevatorSystemService
     #endregion
 
     #region Set Elevator Status and State
-    public async Task StepAsync()
+    public virtual async Task StepAsync()
     {
         var tasks = _elevators.Select(async elevator =>
         {
@@ -148,7 +148,7 @@ public class ElevatorSystemService
     #endregion
 
     #region Retrieve Elevators Status
-    public async Task<List<Elevator>> GetElevatorStatusAsync()
+    public virtual async Task<List<Elevator>> GetElevatorStatusAsync()
     {
         return await Task.Run(() =>
             _elevators.Select(e => new Elevator
