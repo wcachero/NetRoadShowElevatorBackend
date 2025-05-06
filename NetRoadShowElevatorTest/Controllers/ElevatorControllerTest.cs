@@ -27,8 +27,8 @@ namespace NetRoadShowElevatorTest.Controllers
             // Arrange
             var mockStatus = new List<Elevator>
             {
-                new Elevator { Id = 1, CurrentFloor = 1, Direction = Direction.Idle },
-                new Elevator { Id = 2, CurrentFloor = 5, Direction = Direction.Up }
+                new Elevator { ElevatorId = 1, CurrentFloor = 1, Direction = Direction.Idle },
+                new Elevator { ElevatorId = 2, CurrentFloor = 5, Direction = Direction.Up }
             };
             A.CallTo(() => _elevatorSystemServiceFake.GetElevatorStatus()).Returns(mockStatus);
 

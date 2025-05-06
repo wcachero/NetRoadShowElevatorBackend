@@ -5,7 +5,7 @@ namespace ElevatorMovement.Model;
 [ExcludeFromCodeCoverage]
 public class Elevator
 {
-    public int Id { get; set; }
+    public int ElevatorId { get; set; }
     public int CurrentFloor { get; set; } = 1;
     public Direction Direction { get; set; } = Direction.Idle;
     public Queue<int> Destinations { get; set; } = new();

@@ -19,7 +19,7 @@ public class ElevatorSystemService
     {
         _elevators = new ConcurrentBag<Elevator>(
             Enumerable.Range(1, elevatorCount)
-                      .Select(id => new Elevator { Id = id })
+                      .Select(id => new Elevator { ElevatorId = id })
         );
     }
 
@@ -54,7 +54,7 @@ public class ElevatorSystemService
                 : Direction.Down;
         }
 
-        Console.WriteLine($"Request added: Current Floor {request.CurrentFloor}, Destination Floor {request.Floor}, Direction {request.Direction}, Assigned Elevator {bestElevator.Id}");
+        Console.WriteLine($"Request added: Current Floor {request.CurrentFloor}, Destination Floor {request.Floor}, Direction {request.Direction}, Assigned Elevator {bestElevator.ElevatorId}");
     }
 
     #endregion
@@ -103,7 +103,7 @@ public class ElevatorSystemService
             if (elevator.Destinations.Count == 0)
             {
                 elevator.Direction = Direction.Idle;
-                Console.WriteLine($"Elevator {elevator.Id} is idle at floor {elevator.CurrentFloor}.");
+                Console.WriteLine($"Elevator {elevator.ElevatorId} is idle at floor {elevator.CurrentFloor}.");
                 continue;
             }
 
@@ -122,7 +122,7 @@ public class ElevatorSystemService
             else
             {
                 // Arrived at floor
-                Console.WriteLine($"Elevator {elevator.Id} arrived at floor {targetFloor}");
+                Console.WriteLine($"Elevator {elevator.ElevatorId} arrived at floor {targetFloor}");
                 elevator.Destinations.Dequeue();
                 _requestedFloors.TryRemove(targetFloor, out _);
 
@@ -138,7 +138,7 @@ public class ElevatorSystemService
     {
         return _elevators.Select(e => new Elevator
         {
-            Id = e.Id,
+            ElevatorId = e.ElevatorId,
             CurrentFloor = e.CurrentFloor,
             Direction = e.Direction,
             Destinations = new Queue<int>(e.Destinations),

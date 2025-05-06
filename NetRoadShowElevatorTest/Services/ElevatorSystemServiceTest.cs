@@ -56,8 +56,8 @@ namespace NetRoadShowElevatorTest.Services
             // Manually set the state of the elevators
             var elevators = new List<Elevator>
             {
-                new Elevator { Id = 1, CurrentFloor = 1, Direction = Direction.Idle },
-                new Elevator { Id = 2, CurrentFloor = 5, Direction = Direction.Idle }
+                new Elevator { ElevatorId = 1, CurrentFloor = 1, Direction = Direction.Idle },
+                new Elevator { ElevatorId = 2, CurrentFloor = 5, Direction = Direction.Idle }
             };
 
             var elevatorsField = typeof(ElevatorSystemService).GetField("_elevators", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -75,7 +75,7 @@ namespace NetRoadShowElevatorTest.Services
 
             // Assert
             Assert.NotNull(bestElevator);
-            Assert.Equal(2, bestElevator.Id); // Closest elevator to floor 3 is elevator 2
+            Assert.Equal(2, bestElevator.ElevatorId); // Closest elevator to floor 3 is elevator 2
 
             // Cleanup
             cancellationTokenSource.Cancel();
