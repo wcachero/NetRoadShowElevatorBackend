@@ -73,7 +73,7 @@ public class ElevatorSystemService
         if (!eligibleElevators.Any())
         {
             // No eligible elevators, return null or handle as needed
-            return null;
+            return null!;
         }
 
         // Prioritize idle elevators first
