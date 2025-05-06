@@ -2,6 +2,7 @@
 using ElevatorMovement.Enums;
 using ElevatorMovement.Model;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace ElevatorMovement.Services;
 
@@ -24,9 +25,9 @@ public class ElevatorSystemService
     }
 
     #region Elevator user request
-    public void AddRequest(ElevatorRequest request)
+    public async Task AddRequestAsync(ElevatorRequest request)
     {
-        var bestElevator = FindBestElevator(request);
+        var bestElevator = await Task.Run(() => FindBestElevator(request));
         if (bestElevator == null)
         {
             Console.WriteLine("No available elevator for request.");
@@ -56,27 +57,23 @@ public class ElevatorSystemService
 
         Console.WriteLine($"Request added: Current Floor {request.CurrentFloor}, Destination Floor {request.Floor}, Direction {request.Direction}, Assigned Elevator {bestElevator.ElevatorId}");
     }
-
     #endregion
 
     #region FindBest Elevator using dispatch logic
     private Elevator FindBestElevator(ElevatorRequest request)
     {
-        // Filter elevators that can handle the request
         var eligibleElevators = _elevators
             .Where(e =>
-                (e.Direction == Direction.Idle) || // Idle elevators can handle any request
-                (e.Direction == Direction.Up && e.CurrentFloor <= request.CurrentFloor && request.CurrentFloor <= e.Destinations.Max()) || // Elevator going up and can stop at the requested floor
-                (e.Direction == Direction.Down && e.CurrentFloor >= request.CurrentFloor && request.CurrentFloor >= e.Destinations.Min())) // Elevator going down and can stop at the requested floor
+                (e.Direction == Direction.Idle) ||
+                (e.Direction == Direction.Up && e.CurrentFloor <= request.CurrentFloor && request.CurrentFloor <= e.Destinations.Max()) ||
+                (e.Direction == Direction.Down && e.CurrentFloor >= request.CurrentFloor && request.CurrentFloor >= e.Destinations.Min()))
             .ToList();
 
         if (!eligibleElevators.Any())
         {
-            // No eligible elevators, return null or handle as needed
             return null!;
         }
 
-        // Prioritize idle elevators first
         var idleElevators = eligibleElevators
             .Where(e => e.Direction == Direction.Idle)
             .OrderBy(e => Math.Abs(e.CurrentFloor - request.CurrentFloor))
@@ -87,24 +84,22 @@ public class ElevatorSystemService
             return idleElevators.First();
         }
 
-        // If no idle elevators, find the closest busy elevator that can handle the request
         return eligibleElevators
             .OrderBy(e => Math.Abs(e.CurrentFloor - request.CurrentFloor))
             .FirstOrDefault()!;
     }
-
     #endregion
 
     #region Set Elevator Status and State
-    public virtual void Step()
+    public async Task StepAsync()
     {
-        foreach (var elevator in _elevators)
+        var tasks = _elevators.Select(async elevator =>
         {
             if (elevator.Destinations.Count == 0)
             {
                 elevator.Direction = Direction.Idle;
                 Console.WriteLine($"Elevator {elevator.ElevatorId} is idle at floor {elevator.CurrentFloor}.");
-                continue;
+                return;
             }
 
             var targetFloor = elevator.Destinations.Peek();
@@ -121,7 +116,6 @@ public class ElevatorSystemService
             }
             else
             {
-                // Arrived at floor
                 Console.WriteLine($"Elevator {elevator.ElevatorId} arrived at floor {targetFloor}");
                 elevator.Destinations.Dequeue();
                 _requestedFloors.TryRemove(targetFloor, out _);
@@ -129,25 +123,32 @@ public class ElevatorSystemService
                 if (elevator.Destinations.Count == 0)
                     elevator.Direction = Direction.Idle;
             }
-        }
+
+            await Task.Delay(100); // Simulate elevator movement delay
+        });
+
+        await Task.WhenAll(tasks);
     }
     #endregion
 
     #region Retrieve Elevators Status
-    public virtual List<Elevator> GetElevatorStatus()
+    public async Task<List<Elevator>> GetElevatorStatusAsync()
     {
-        return _elevators.Select(e => new Elevator
-        {
-            ElevatorId = e.ElevatorId,
-            CurrentFloor = e.CurrentFloor,
-            Direction = e.Direction,
-            Destinations = new Queue<int>(e.Destinations),
-            Status = Status.Online.ToString()
-        }).ToList();
+        return await Task.Run(() =>
+            _elevators.Select(e => new Elevator
+            {
+                ElevatorId = e.ElevatorId,
+                CurrentFloor = e.CurrentFloor,
+                Direction = e.Direction,
+                Destinations = new Queue<int>(e.Destinations),
+                Status = Status.Online.ToString()
+            }).ToList()
+        );
     }
-    public virtual List<int> GetPendingFloorRequests()
+
+    public virtual async Task<List<int>> GetPendingFloorRequestsAsync()
     {
-        return _requestedFloors.Keys.OrderBy(f => f).ToList();
+        return await Task.Run(() => _requestedFloors.Keys.OrderBy(f => f).ToList());
     }
     #endregion
 }

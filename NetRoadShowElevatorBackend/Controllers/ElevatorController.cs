@@ -16,25 +16,25 @@ namespace ElevatorMovement.Controllers
         }
 
         [HttpGet("status")]
-        public IActionResult GetStatus()
+        public async Task<IActionResult> GetStatus()
         {
-            return Ok(_elevatorSystemService.GetElevatorStatus());
+            return Ok(await _elevatorSystemService.GetElevatorStatusAsync());
         }
 
         [HttpPost("request")]
-        public IActionResult RequestElevator([FromBody] ElevatorRequest request)
+        public async Task<IActionResult> RequestElevator([FromBody] ElevatorRequest request)
         {
             if (request == null || request.Floor < 0)
                 return BadRequest("Invalid request");
 
-            _elevatorSystemService.AddRequest(request);
+           await _elevatorSystemService.AddRequestAsync(request);
             return Ok(new { message = "Request added" });
         }
 
         [HttpGet("pending-floors")]
-        public IActionResult GetPendingFloors()
+        public async Task<IActionResult> GetPendingFloors()
         {
-            return Ok(_elevatorSystemService.GetPendingFloorRequests());
+            return Ok(await _elevatorSystemService.GetElevatorStatusAsync());
         }
     }
 }

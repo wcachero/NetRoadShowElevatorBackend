@@ -29,7 +29,7 @@ namespace NetRoadShowElevatorTest.Services.BackgroundServices
 
             // Assert
 
-             A.CallTo(() => elevatorSystemService.Step()).MustHaveHappened();
+             A.CallTo(() => elevatorSystemService.StepAsync()).MustHaveHappened();
  
         }
     }

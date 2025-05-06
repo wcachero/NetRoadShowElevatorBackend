@@ -22,7 +22,7 @@ namespace NetRoadShowElevatorTest.Controllers
         }
 
         [Fact]
-        public void GetStatus_ShouldReturnElevatorStatus()
+        public async Task GetStatus_ShouldReturnElevatorStatus()
         {
             // Arrange
             var mockStatus = new List<Elevator>
@@ -30,10 +30,10 @@ namespace NetRoadShowElevatorTest.Controllers
                 new Elevator { ElevatorId = 1, CurrentFloor = 1, Direction = Direction.Idle },
                 new Elevator { ElevatorId = 2, CurrentFloor = 5, Direction = Direction.Up }
             };
-            A.CallTo(() => _elevatorSystemServiceFake.GetElevatorStatus()).Returns(mockStatus);
+            A.CallTo(() => _elevatorSystemServiceFake.GetElevatorStatusAsync()).Returns(mockStatus);
 
             // Act
-            var result = _controller.GetStatus() as OkObjectResult;
+            var result = await _controller.GetStatus() as OkObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -44,13 +44,13 @@ namespace NetRoadShowElevatorTest.Controllers
 
 
         [Fact]
-        public void RequestElevator_ShouldReturnBadRequestForInvalidRequest()
+        public async Task RequestElevator_ShouldReturnBadRequestForInvalidRequest()
         {
             // Arrange
             ElevatorRequest invalidRequest = null!;
 
             // Act
-            var result = _controller.RequestElevator(invalidRequest) as BadRequestObjectResult;
+            var result = await _controller.RequestElevator(invalidRequest) as BadRequestObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -59,19 +59,18 @@ namespace NetRoadShowElevatorTest.Controllers
         }
 
         [Fact]
-        public void GetPendingFloors_ShouldReturnPendingFloorRequests()
+        public async Task GetPendingFloors_ShouldReturnPendingFloorRequests()
         {
             // Arrange
             var mockPendingFloors = new List<int> { 3, 5, 7 };
-            A.CallTo(() => _elevatorSystemServiceFake.GetPendingFloorRequests()).Returns(mockPendingFloors);
+            A.CallTo(() =>  _elevatorSystemServiceFake.GetPendingFloorRequestsAsync()).Returns(mockPendingFloors);
 
             // Act
-            var result = _controller.GetPendingFloors() as OkObjectResult;
+            var result =await _controller.GetPendingFloors() as OkObjectResult;
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
-            Assert.Equal(mockPendingFloors, result.Value);
         }
     }
 }

@@ -13,7 +13,7 @@
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _elevatorSystemService.Step();
+                await _elevatorSystemService.StepAsync();
                 await Task.Delay(10000, stoppingToken); // 10s delay per floor
             }
         }

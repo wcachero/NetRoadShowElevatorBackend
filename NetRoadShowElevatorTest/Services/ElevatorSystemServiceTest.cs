@@ -19,7 +19,7 @@ namespace NetRoadShowElevatorTest.Services
         }
 
         [Fact]
-        public void AddRequest_ShouldAssignRequestToIdleElevator()
+        public async Task AddRequest_ShouldAssignRequestToIdleElevator()
         {
             // Arrange
             var request = new ElevatorRequest
@@ -30,8 +30,8 @@ namespace NetRoadShowElevatorTest.Services
             };
 
             // Act
-            _elevatorSystemService.AddRequest(request);
-            var status = _elevatorSystemService.GetElevatorStatus();
+            await _elevatorSystemService.AddRequestAsync(request);
+            var status = await _elevatorSystemService.GetElevatorStatusAsync();
 
             // Assert
             var elevator = status.FirstOrDefault(e => ((dynamic)e).Destinations.Contains(5));
@@ -93,7 +93,7 @@ namespace NetRoadShowElevatorTest.Services
                 Floor = 5,
                 Direction = Direction.Up
             };
-            _elevatorSystemService.AddRequest(request);
+            await _elevatorSystemService.AddRequestAsync(request);
 
             // Start the worker service
             var cancellationTokenSource = new CancellationTokenSource();
@@ -101,8 +101,8 @@ namespace NetRoadShowElevatorTest.Services
 
             // Act
             await Task.Delay(1000); // Allow some time for the worker to process
-            _elevatorSystemService.Step();
-            var status = _elevatorSystemService.GetElevatorStatus();
+            await _elevatorSystemService.StepAsync();
+            var status = await _elevatorSystemService.GetElevatorStatusAsync();
 
             // Assert
             var elevator = status.FirstOrDefault(e => ((dynamic)e).Destinations.Contains(5));
@@ -116,7 +116,7 @@ namespace NetRoadShowElevatorTest.Services
 
 
         [Fact]
-        public void AddRequest_ShouldHandleBusyElevatorOnSamePath()
+        public async Task AddRequest_ShouldHandleBusyElevatorOnSamePath()
         {
             // Arrange
             var request1 = new ElevatorRequest
@@ -132,11 +132,11 @@ namespace NetRoadShowElevatorTest.Services
                 Direction = Direction.Up
             };
 
-            _elevatorSystemService.AddRequest(request1);
+           await _elevatorSystemService.AddRequestAsync(request1);
 
             // Act
-            _elevatorSystemService.AddRequest(request2);
-            var status = _elevatorSystemService.GetElevatorStatus();
+            await _elevatorSystemService.AddRequestAsync(request2);
+            var status =await _elevatorSystemService.GetElevatorStatusAsync();
 
             // Assert
             var elevator = status.FirstOrDefault(e => ((dynamic)e).Destinations.Contains(10));
@@ -146,7 +146,7 @@ namespace NetRoadShowElevatorTest.Services
         }
 
         [Fact]
-        public void Step_ShouldHandleMultipleRequests()
+        public async Task Step_ShouldHandleMultipleRequests()
         {
             // Arrange
             var request1 = new ElevatorRequest
@@ -162,12 +162,12 @@ namespace NetRoadShowElevatorTest.Services
                 Direction = Direction.Up
             };
 
-            _elevatorSystemService.AddRequest(request1);
-            _elevatorSystemService.AddRequest(request2);
+            await _elevatorSystemService.AddRequestAsync(request1);
+            await _elevatorSystemService.AddRequestAsync(request2);
 
             // Act
-            _elevatorSystemService.Step();
-            var status = _elevatorSystemService.GetElevatorStatus();
+            await _elevatorSystemService.StepAsync();
+            var status =await _elevatorSystemService.GetElevatorStatusAsync();
 
             // Assert
             var elevator1 = status.FirstOrDefault(e => ((dynamic)e).Destinations.Contains(5));

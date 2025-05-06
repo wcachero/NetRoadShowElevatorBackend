@@ -1,7 +1,7 @@
 ﻿using ElevatorMovement.Enums;
 using System.Diagnostics.CodeAnalysis;
-
 namespace ElevatorMovement.Model;
+
 [ExcludeFromCodeCoverage]
 public class Elevator
 {
