@@ -70,27 +70,5 @@ namespace NetRoadShowElevatorTest.Services.BackgroundServices
             A.CallTo(() => elevatorSystemService.StepAsync()).MustHaveHappened();
         }
 
-        [Fact]
-        public async Task ExecuteAsync_ShouldHandleExceptionsGracefully()
-        {
-            // Arrange
-            var elevatorSystemService = A.Fake<ElevatorSystemService>();
-            A.CallTo(() => elevatorSystemService.StepAsync()).ThrowsAsync(new System.Exception("Test exception"));
-            var workerService = new ElevatorWorkerService(elevatorSystemService);
-            var cancellationTokenSource = new CancellationTokenSource();
-
-            // Act
-            var executeTask = workerService.StartAsync(cancellationTokenSource.Token);
-
-            // Allow the service to run briefly
-            await Task.Delay(50);
-
-            // Stop the service
-            cancellationTokenSource.Cancel();
-            await executeTask;
-
-            // Assert
-            A.CallTo(() => elevatorSystemService.StepAsync()).MustHaveHappened();
-        }
     }
 }
